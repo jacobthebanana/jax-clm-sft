@@ -32,6 +32,8 @@ def merge_and_tokenize(
     Returns a token-level loss mask, where all tokens are 0 except for
     tokens from the responses.
     """
+    tokenizer.add_special_tokens({"pad_token": "<pad>"})
+
     delimiter_token_input_id = tokenizer(delimiter).input_ids[-1]
 
     assert len(prompts) == len(
@@ -65,7 +67,7 @@ def merge_and_tokenize(
         delimiter_matches = np.argwhere(pair_input_ids == delimiter_token_input_id)
 
         # First response token (not including delimiter.)
-        index_a = delimiter_matches[1].item() + 1
+        index_a = delimiter_matches[0].item() + 1
         index_b = delimiter_matches[-1].item()
 
         loss_mask[pair_index, index_a:index_b] = 1
@@ -85,7 +87,7 @@ def get_loss_masked_tokenizer(
     batch_size: int,
     num_epochs: float = 1.0,
     jax_prng_seed: int = 0,
-    delimiter: str = "</s>",
+    delimiter: str = "<s>",
 ) -> Tuple[Callable[[], Iterator[LossMaskedBatch]], NumBatches]:
     """
     CLM loss is calculated only over the output.
