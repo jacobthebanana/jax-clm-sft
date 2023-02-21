@@ -7,7 +7,7 @@ import numpy as np
 from transformers import AutoTokenizer
 import datasets
 
-from ..data.loss_masked_loader import merge_and_tokenize, get_loss_masked_tokenizer
+from ..data.loss_masked_loader import merge_and_tokenize, get_loss_masked_dataloader
 
 DATASET_DICT_PATH = os.environ.get(
     "TEST_DATASET_DICT_PATH", "data/processed/reddit_eli5"
@@ -59,7 +59,7 @@ class LossMaskedDataloaderTestCases(unittest.TestCase):
             assert response == response_decoded
 
     def test_dataloader(self):
-        init_dataloader, num_batches = get_loss_masked_tokenizer(
+        init_dataloader, num_batches = get_loss_masked_dataloader(
             self.test_dataset,
             self.tokenizer,
             EXAMPLE_BLOCK_SIZE,

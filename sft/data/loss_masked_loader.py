@@ -80,7 +80,7 @@ def merge_and_tokenize(
     )
 
 
-def get_loss_masked_tokenizer(
+def get_loss_masked_dataloader(
     dataset: datasets.Dataset,
     tokenizer: Tokenizer,
     block_size: int,

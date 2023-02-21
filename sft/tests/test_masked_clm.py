@@ -8,7 +8,7 @@ import jax
 import optax
 from flax.training.train_state import TrainState
 
-from ..data.loss_masked_loader import get_loss_masked_tokenizer
+from ..data.loss_masked_loader import get_loss_masked_dataloader
 from ..model.clm import jit_loss_logit_fn, logit_loss_grad_fn, jit_train_step
 
 HF_MODEL_NAME = os.environ.get("TEST_HF_MODEL", "jacobthebanana/galactica-125m")
@@ -30,7 +30,7 @@ class MaskedTrainingTests(unittest.TestCase):
         tokenizer = AutoTokenizer.from_pretrained(HF_TOKENIZER_NAME)
 
         tokenizer = AutoTokenizer.from_pretrained(HF_TOKENIZER_NAME)
-        cls.init_train_dataloader, _ = get_loss_masked_tokenizer(
+        cls.init_train_dataloader, _ = get_loss_masked_dataloader(
             dataset,
             tokenizer,
             EXAMPLE_BLOCK_SIZE,
