@@ -66,9 +66,15 @@ def merge_and_tokenize(
         # the two delimiters.
         delimiter_matches = np.argwhere(pair_input_ids == delimiter_token_input_id)
 
-        # First response token (not including delimiter.)
-        index_a = delimiter_matches[0].item() + 1
-        index_b = delimiter_matches[-1].item()
+        if len(delimiter_matches) == 3:  # BOS Token is included in tokenizer output.
+            index_a = delimiter_matches[1].item() + 1
+            index_b = delimiter_matches[-1].item()
+        elif len(delimiter_matches) == 2:  # BOS Token not in tokenizer output.
+            index_a = delimiter_matches[0].item() + 1
+            index_b = delimiter_matches[-1].item()
+        else:
+            index_a = 0
+            index_b = 0
 
         loss_mask[pair_index, index_a:index_b] = 1
         attention_mask[pair_index, index_b] = 0
