@@ -8,7 +8,7 @@ import jax
 import optax
 from flax.training.train_state import TrainState
 
-from ..data.loss_masked_loader import get_loss_masked_dataloader
+from ..data.loss_masked_loader import get_loss_masked_dataloader, merge_and_tokenize
 from ..model.clm import jit_loss_logit_fn, logit_loss_grad_fn, jit_train_step
 
 HF_MODEL_NAME = os.environ.get("TEST_HF_MODEL", "jacobthebanana/galactica-125m")
@@ -80,7 +80,27 @@ class MaskedTrainingTests(unittest.TestCase):
         opt_state = optimizer.init(MaskedTrainingTests.params)
         optimizer.update(gradients, opt_state, MaskedTrainingTests.params)
 
-        print(jax.tree_util.tree_map(jax.numpy.sum, gradients))
+        # print(jax.tree_util.tree_map(jax.numpy.sum, gradients))
+        print(loss)
+
+    def test_gradient_fn_edge_case(self):
+        tokenizer = AutoTokenizer.from_pretrained(HF_TOKENIZER_NAME)
+        example_batch = merge_and_tokenize(
+            ["Example Prompt"], [""], 12, "<s>", tokenizer
+        )
+        print(example_batch.loss_mask)
+        print(jax.numpy.sum(example_batch.loss_mask))
+
+        (loss, logits), gradients = logit_loss_grad_fn(
+            MaskedTrainingTests.params,
+            MaskedTrainingTests.model.__call__,
+            example_batch,
+        )
+
+        optimizer = optax.adamw(LEARNING_RATE, eps=1e-6, eps_root=1e-6)
+        opt_state = optimizer.init(MaskedTrainingTests.params)
+        optimizer.update(gradients, opt_state, MaskedTrainingTests.params)
+
         print(loss)
 
     def test_step_train_state(self):

@@ -45,7 +45,7 @@ def loss_logit_fn(
     # Return loss averaged over num_tokens_selected if num_tokens_selected > 0.
     # Return 0. otherwise.
     return (
-        jnp.where(num_tokens_selected >= 1, loss / num_tokens_selected, 0.0),
+        jnp.where(num_tokens_selected >= 1, loss / (num_tokens_selected + 1e-5), 0.0),
         logits,
     )
 
